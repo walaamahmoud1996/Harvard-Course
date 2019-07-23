@@ -53,7 +53,7 @@ def create_table():
 
 
 def main():
-     # create_table()
+    create_table()
     print("finished...")
 
 
