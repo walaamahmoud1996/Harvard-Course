@@ -1,6 +1,6 @@
 import os
 import pandas
-from sqlalchemy import create_engine, Column, String, Integer
+from sqlalchemy import create_engine, Column, String, Integer,Sequence
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -42,14 +42,15 @@ session = Session()
 base.metadata.create_all(db)
 
 
-def create_table():
-    table = read_data('books.csv')
+def create_books_table(table):
     for i in range(table.shape[0]):
 
         book = Books(isbn=table['isbn'][i],title = table['title'][i],author= table['author'][i],year=int(table['year'][i]))
         session.add(book)
         session.commit()
 
+def create_users_table(table):
+    for i in range(table.shape[0]):
 
 
 def main():
