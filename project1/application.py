@@ -25,26 +25,33 @@ db = scoped_session(sessionmaker(bind=engine))
 def index():
     return "TO DO MAN"
 
-@app.route("/registration")
-def registraion():
-    return render_template("registration.html")
+@app.route("/Signup",methods=["GET","POST"])
+def Signup():
+    message = None
+    if request.method =="POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if db.execute("SELECT username FROM SystemUsers WHERE username=:username",{"username":username}).rowcount==0:
+            db.execute("INSERT INTO SystemUsers(username,password) VALUES(:username,:password)",{"username":username,"password":password})
+            message = "your registration was Successful"
+        else:
+            message="username already in use"
+        db.commit()
+    return render_template("Signup.html",message= message)
 
-@app.route("/register",methods=["POST"])
-def register():
-    username = request.form.get("username")
-    password = request.form.get("password")
-    db.execute("INSERT INTO SystemUsers(username,password) VALUES(:username,:password)",
-    {"username":username,"password":password})
-    db.commit()
-    return render_template("success.html")
-@app.route("/login")
+@app.route("/login",methods=["GET","POST"])
 def login():
-    return render_template("login.html")
-@app.route("/checkAuth")
-def checkAuth():
+    message =None
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if username == "" or password =="":#handle this case later in html
+            return render_template("error.html",message="you must fill both fields")
+        else:
+            if db.execute("SELECT * FROM SystemUsers WHERE username=:username AND password =:password",{"username":username,"password":password}).rowcount==0:
+                message="Wrong username or password"
+            else:
+                return render_template("Welcome.html",User=username)
+            db.commit()
 
-    username = request.form.get("username")
-    password = request.form.get("password")
-    if db.execute("SELECT * FROM SystemUsers WHERE username=:username AND password=:password",{'username':username ,'password':password}).rowcount ==0:
-        return render_template("error.html",message = "Wrong username or password")
-    return render_template("Welcome.html",User="username")
+    return render_template("login.html",message=message)

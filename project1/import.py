@@ -1,0 +1,52 @@
+import os
+import pandas
+from sqlalchemy import create_engine, Column, String, Integer
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+if not os.getenv("DATABASE_URL"):
+    raise RuntimeError("DATABASE_URL is not set")
+
+db = create_engine(os.getenv("DATABASE_URL"))
+base = declarative_base()
+
+def read_data(address):
+    tables = pandas.read_csv(address)
+    print(tables.shape[0])
+    return tables
+
+class Books(base):
+    """docstring for Books."""
+
+    __tablename__ = 'books'
+
+    isbn = Column(String,primary_key = True)
+    title = Column(String)
+    author = Column(String)
+    year = Column(Integer)
+
+Session = sessionmaker(db)
+session = Session()
+
+
+base.metadata.create_all(db)
+
+
+def create_table():
+    table = read_data('books.csv')
+    for i in range(table.shape[0]):
+
+        book = Books(isbn=table['isbn'][i],title = table['title'][i],author= table['author'][i],year=int(table['year'][i]))
+        session.add(book)
+        session.commit()
+
+
+
+def main():
+    create_table()
+    read_data('books.csv')
+    print("finished...")
+
+
+if __name__ == "__main__":
+    main()
