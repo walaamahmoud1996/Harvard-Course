@@ -25,6 +25,16 @@ class Books(base):
     author = Column(String)
     year = Column(Integer)
 
+
+class Users(base):
+    """docstring fo Users."""
+    __tablename__ = 'users'
+    id = Column(Integer,primary_key=True)
+    username = Column(String)
+    password = Column(String)
+    email = Column(String)
+
+
 Session = sessionmaker(db)
 session = Session()
 
@@ -43,8 +53,7 @@ def create_table():
 
 
 def main():
-    create_table()
-    read_data('books.csv')
+     # create_table()
     print("finished...")
 
 
