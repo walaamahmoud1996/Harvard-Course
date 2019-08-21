@@ -1,9 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+
     // Connect to websocket
+
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port+'/channels');
 
-
+    if(!localStorage.getItem('currentChannel')){
+      localStorage.setItem('currentChannel','');
+    }
     console.log('hello');
 
     socket.on('connect',() => {
@@ -16,8 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     socket.on('channel list',data=>{
-
-
           // As long as <ul> has a child node, remove it
 
         for(i=0;i<data.available_channels.length;i++){
@@ -57,10 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
       var link = document.createElement('a');
       link.innerHTML=data;
       link.href = Flask.url_for('channel',{channel_name:data});
+      link.value = data;
 
       // link.href = "https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_anchor_href2"
       // link.href = Flask.url_for({{'channel',channel_name = data}});
       item.appendChild(link);
       document.querySelector('#channel-list').appendChild(item);
-    })
+    });
+
 });
