@@ -20,12 +20,22 @@ jsglue = JSGlue(app)
 def index():
     return render_template("index.html", votes=votes)
 
-#
-# @socketio.on("submit vote")
-# def vote(data):
-#     selection = data["selection"]
-#     votes[selection] += 1
-#     emit("vote totals", votes, broadcast=True)
+@app.route('/IsOpen',methods=['GET'])
+def IsOpen():
+    if len(ava_channels['ava_channels'])==0:
+        return jsonify({"success":False})
+
+    return jsonify({"success":True})
+
+@app.route('/GetCurrentChannel', methods=["GET"])
+def GetCurrentChannel():
+    print('ana hna fe current')
+
+    print(currentChannel)
+    if currentChannel=="":
+        return jsonify({"success":False})
+    return jsonify({"success":True,"currentChannel":currentChannel})
+
 @socketio.on('get channels',namespace='/channels')
 def get_channels():
     emit('channel list',ava_channels)
@@ -44,19 +54,20 @@ def send_msg(data):
     print(ava_msgs[data['currentChannel']])
     emit('recieve msg',data,broadcast=True)
 
+@socketio.on('delete msg',namespace='/channel')
+def delete_msg(data):
+    print('ana fe delete')
+    print(data)
+    for i in range(len(ava_msgs[data['channel_name']])):
+        print(ava_msgs[data['channel_name']][i]['user'])
+        if ava_msgs[data['channel_name']][i]['user']==data['user'] and ava_msgs[data['channel_name']][i]['msg']==data['msg']:
+            ava_msgs[data['channel_name']][i]['msg']="This message was deleted"
 
+    emit('msg deleted',data,broadcast=True)
 @app.route('/channels')
 def channels():
     return render_template('channels.html')
 
-@app.route('/GetCurrentChannel', methods=["GET"])
-def GetCurrentChannel():
-    print('ana hna fe current')
-
-    print(currentChannel)
-    if currentChannel=="":
-        return jsonify({"success":False})
-    return jsonify({"success":True,"currentChannel":currentChannel})
 
 @app.route('/channel/<string:channel_name>')
 def channel(channel_name):
@@ -64,5 +75,5 @@ def channel(channel_name):
     print("hello from channel")
     global currentChannel
     currentChannel=channel_name
-    print(ava_msgs)
+    print(len(ava_msgs))
     return render_template('channel.html',channel_name=channel_name,ava_msgs=ava_msgs)

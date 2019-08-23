@@ -1,3 +1,15 @@
+function server_is_working(){
+  var request = new XMLHttpRequest;
+  request.open('GET','/IsOpen');
+  request.send();
+  request.onload=()=>{
+  const data = JSON.parse(request.responseText);
+    return data.sucess;
+  }
+
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('button').onclick = ()=>{
     display_name = document.querySelector('input').value;
@@ -5,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     location.replace('channels');
 
   }
+  if(server_is_working())
+  {
   if(!localStorage.getItem('user')){
     localStorage.setItem('user','');
   }else{
@@ -17,6 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
       location.replace(`channel/${localStorage.currentChannel}`);
     }
   }
-
+}
+else{
+  localStorage.clear()
+}
 
 });
